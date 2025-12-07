@@ -1,0 +1,39 @@
+---
+const title = 'BemComido - Principal';
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <!-- Top Navbar -->
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</button>
+        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</button>
+        <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <a href="/login" class="ml-4 px-3 py-1 bg-[#b21f1f] rounded shadow-button">Entrar</a>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-10">
+      <h1 class="text-3xl text-brandBrown italic mb-6">Coloque a mão na massa...</h1>
+
+      <div class="flex items-center gap-3">
+        <div class="flex-1 flex items-center gap-2 bg-white rounded-md border border-black/60 p-2 shadow-sm">
+          <span class="text-brandBrown">🔍</span>
+          <input type="text" placeholder="Digite o ingrediente" class="flex-1 outline-none" />
+        </div>
+        <button class="px-3 py-1 bg-brandRed text-white rounded shadow-button active:translate-y-[1px]">Adicionar</button>
+      </div>
+    </main>
+  </body>
+</html>

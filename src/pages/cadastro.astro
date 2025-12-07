@@ -1,0 +1,140 @@
+---
+const title = 'Cadastro - BemComido';
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <main class="w-full max-w-xl mx-auto px-6 pt-8">
+      <!-- Top icon and welcome (header) -->
+      <div class="text-center mb-3">
+        <div class="text-6xl">☕</div>
+        <h2 class="mt-3 text-3xl">
+          <span class="text-brandBrown">Seja</span>
+          <span class="text-brandRed font-extrabold"> bem-vindo </span>
+          <span class="text-brandBrown">cozinheiro!</span>
+        </h2>
+      </div>
+
+      <!-- Promo button with cartoon-like shadow bar -->
+      <div class="flex justify-center mb-3">
+        <div class="relative inline-block">
+          <a href="#" class="inline-block bg-brandRed text-white px-6 py-2 rounded-md shadow-button active:translate-y-[2px]">Clique aqui e conheça nosso site!</a>
+          <div class="absolute left-1/2 -translate-x-1/2 w-48 h-[4px] bg-black/70 rounded-sm -bottom-[6px]"></div>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-[#f9e3ac] rounded-md p-6 shadow-md ring-1 ring-black/10">
+        <form id="cadastroForm" class="space-y-3">
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Nome de Usuário:</span>
+            <input type="text" name="username" required class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+          </label>
+
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Email:</span>
+            <input type="email" name="email" required class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+          </label>
+
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Senha:</span>
+            <input type="password" name="password" required minlength="6" class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+          </label>
+
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Confirmar Senha:</span>
+            <input type="password" name="confirmarPassword" required minlength="6" class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+          </label>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+            <label class="block">
+              <span class="text-brandBrown text-sm font-semibold">País:</span>
+              <input type="text" name="pais" required class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+            </label>
+
+            <div class="grid grid-cols-[1fr_auto] items-end gap-2">
+              <div>
+                <span class="text-brandBrown text-sm font-semibold">Ano de Nascimento:</span>
+                <input type="date" name="dataNascimento" required class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+              </div>
+              <button type="button" class="mt-[22px] h-10 w-10 rounded-md bg-white border border-black/40 grid place-items-center">
+                📅
+              </button>
+            </div>
+          </div>
+
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Telefone:</span>
+            <input type="tel" name="telefone" placeholder="+5511987654321" class="mt-1 block w-full rounded-md border border-black/40 focus:border-brandRed focus:ring-brandRed shadow-sm" />
+          </label>
+
+          <!-- Big red arrow button -->
+          <div class="flex justify-center pt-2">
+            <button type="submit" class="h-12 w-12 rounded-full bg-brandRed text-white grid place-items-center text-2xl shadow-button active:translate-y-[2px]" aria-label="Continuar">
+              ➜
+            </button>
+          </div>
+          <p id="formMsg" class="mt-2 text-center text-sm"></p>
+        </form>
+      </div>
+
+      <!-- Divider and CTA -->
+      <div class="mt-5">
+        <div class="flex items-center gap-3 text-brandBrown">
+          <span class="flex-1 border-t border-black/50"></span>
+          <span>OU</span>
+          <span class="flex-1 border-t border-black/50"></span>
+        </div>
+
+        <div class="mt-3">
+          <a href="/" class="block text-center bg-brandRed text-white py-2 rounded-md shadow-button active:translate-y-[2px]">Conecte-se</a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+<script>
+  const form = document.getElementById('cadastroForm');
+  const msg = document.getElementById('formMsg');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    if (data.password !== data.confirmarPassword) {
+      msg.textContent = 'As senhas não coincidem.';
+      msg.className = 'mt-2 text-center text-sm text-brandRed';
+      return;
+    }
+
+    try {
+      msg.textContent = 'Enviando...';
+      msg.className = 'mt-2 text-center text-sm text-brandBrown';
+
+      const res = await fetch('http://localhost:8080/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body.message || 'Falha no cadastro');
+      }
+
+      msg.textContent = 'Cadastro realizado com sucesso!';
+      msg.className = 'mt-2 text-center text-sm text-green-700';
+      // Optionally redirect after success
+      setTimeout(() => { window.location.href = '/'; }, 1200);
+    } catch (err) {
+      msg.textContent = String(err.message || err);
+      msg.className = 'mt-2 text-center text-sm text-brandRed';
+    }
+  });
+</script>
