@@ -19,12 +19,17 @@ const title = 'BemComido - Feed';
           <span>BC</span>
           <span aria-hidden="true">☕</span>
         </div>
-        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</button>
-        <div class="flex items-center gap-2 ml-2">
+        <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
+        <div class="flex items-center gap-2 ml-2 relative">
           <span>Bem vindo, Usuário</span>
           <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
+          <button id="userMenuToggle" class="ml-2 px-2">⋮</button>
+          <div id="userMenu" class="hidden absolute right-0 top-10 bg-[#f9e3ac] text-brandBrown rounded-md shadow-md ring-1 ring-black/10 w-48">
+            <button id="editarInfo" class="w-full text-left px-4 py-2 hover:bg-black/10">Editar Informações</button>
+            <button id="minhasReceitas" class="w-full text-left px-4 py-2 hover:bg-black/10">Minhas Receitas</button>
+            <button id="sair" class="w-full text-left px-4 py-2 hover:bg-black/10 text-brandRed">Sair</button>
+          </div>
         </div>
-        <button class="ml-2 px-2">⋮</button>
       </div>
     </header>
 
@@ -59,3 +64,35 @@ const title = 'BemComido - Feed';
     </main>
   </body>
 </html>
+<script>
+  const toggle = document.getElementById('userMenuToggle');
+  const menu = document.getElementById('userMenu');
+  const sairBtn = document.getElementById('sair');
+  const editarBtn = document.getElementById('editarInfo');
+  const minhasBtn = document.getElementById('minhasReceitas');
+
+  toggle?.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menu || !toggle) return;
+    const target = e.target;
+    if (menu.classList.contains('hidden')) return;
+    if (target === menu || target === toggle || menu.contains(target)) return;
+    menu.classList.add('hidden');
+  });
+
+  sairBtn?.addEventListener('click', () => {
+    localStorage.removeItem('authToken');
+    window.location.href = '/';
+  });
+
+  editarBtn?.addEventListener('click', () => {
+    window.location.href = '/usuario/editar';
+  });
+
+  minhasBtn?.addEventListener('click', () => {
+    window.location.href = '/usuario/receitas';
+  });
+</script>

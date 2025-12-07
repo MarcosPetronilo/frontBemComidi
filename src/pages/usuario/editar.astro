@@ -1,0 +1,159 @@
+---
+const title = 'BemComido - Editar Informações';
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <div class="flex items-center gap-2 ml-2">
+          <span>Bem vindo, Usuário</span>
+          <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-lg mx-auto px-4 py-10">
+      <div class="bg-[#f9e3ac] rounded-md p-6 shadow-md ring-1 ring-black/10">
+        <h1 class="text-2xl text-brandBrown mb-4">Editar Informações</h1>
+        <form id="editForm" class="space-y-3">
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Nome de Usuário</span>
+            <input type="text" name="username" required class="mt-1 block w-full rounded-md border border-black/40 p-2" />
+          </label>
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Email</span>
+            <input type="email" name="email" required class="mt-1 block w-full rounded-md border border-black/40 p-2" />
+          </label>
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">País</span>
+            <input type="text" name="pais" required class="mt-1 block w-full rounded-md border border-black/40 p-2" />
+          </label>
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Data de Nascimento</span>
+            <input type="date" name="dataNascimento" required class="mt-1 block w-full rounded-md border border-black/40 p-2" />
+          </label>
+          <label class="block">
+            <span class="text-brandBrown text-sm font-semibold">Telefone</span>
+            <input type="tel" name="telefone" required class="mt-1 block w-full rounded-md border border-black/40 p-2" />
+          </label>
+          <div class="pt-2 flex flex-wrap justify-between gap-2">
+            <button id="deleteAccount" type="button" class="px-3 py-2 bg-white border border-red-700 text-red-700 rounded-md">Excluir Conta</button>
+            <div class="flex gap-2">
+              <a href="/app" class="px-3 py-2 bg-white border border-black/40 rounded-md">Cancelar</a>
+              <button type="submit" class="px-3 py-2 bg-brandRed text-white rounded-md shadow-button">Salvar</button>
+            </div>
+          </div>
+          <p id="editMsg" class="mt-2 text-center text-sm"></p>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
+<script>
+  const form = document.getElementById('editForm');
+  const msg = document.getElementById('editMsg');
+  const deleteBtn = document.getElementById('deleteAccount');
+
+  async function loadMe() {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      const res = await fetch('http://localhost:8080/users/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const me = await res.json().catch(() => ({}));
+      if (res.ok && me) {
+        form.username.value = me.username || '';
+        form.email.value = me.email || '';
+        form.pais.value = me.pais || '';
+        form.dataNascimento.value = me.dataNascimento || '';
+        form.telefone.value = me.telefone || '';
+      }
+    } catch {}
+  }
+
+  loadMe();
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      msg.textContent = 'Você precisa estar autenticado.';
+      msg.className = 'mt-2 text-center text-sm text-brandRed';
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      msg.textContent = 'Salvando...';
+      msg.className = 'mt-2 text-center text-sm text-brandBrown';
+
+      const res = await fetch('http://localhost:8080/users/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          username: data.username,
+          email: data.email,
+          pais: data.pais,
+          dataNascimento: data.dataNascimento,
+          telefone: data.telefone
+        })
+      });
+
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.message || 'Falha ao atualizar dados');
+
+      msg.textContent = 'Dados atualizados com sucesso!';
+      msg.className = 'mt-2 text-center text-sm text-green-700';
+      setTimeout(() => { window.location.href = '/app'; }, 800);
+    } catch (err) {
+      msg.textContent = String(err.message || err);
+      msg.className = 'mt-2 text-center text-sm text-brandRed';
+    }
+  });
+
+  deleteBtn?.addEventListener('click', async () => {
+    const ok = confirm('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.');
+    if (!ok) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      msg.textContent = 'Você precisa estar autenticado.';
+      msg.className = 'mt-2 text-center text-sm text-brandRed';
+      return;
+    }
+    try {
+      msg.textContent = 'Excluindo conta...';
+      msg.className = 'mt-2 text-center text-sm text-brandBrown';
+      const res = await fetch('http://localhost:8080/users/me', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Falha ao excluir conta');
+      }
+      // Clear auth and go to home
+      localStorage.removeItem('authToken');
+      msg.textContent = 'Conta excluída com sucesso.';
+      msg.className = 'mt-2 text-center text-sm text-green-700';
+      setTimeout(() => { window.location.href = '/'; }, 900);
+    } catch (err) {
+      msg.textContent = String(err.message || err);
+      msg.className = 'mt-2 text-center text-sm text-brandRed';
+    }
+  });
+</script>

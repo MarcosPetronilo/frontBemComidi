@@ -1,0 +1,214 @@
+---
+const title = 'BemComido - Enviar Receita';
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <!-- Navbar -->
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</button>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <div class="flex items-center gap-2 ml-2 relative">
+          <span>Bem vindo, Usuário</span>
+          <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
+          <button id="userMenuToggle" class="ml-2 px-2">⋮</button>
+          <div id="userMenu" class="hidden absolute right-0 top-10 bg-[#f9e3ac] text-brandBrown rounded-md shadow-md ring-1 ring-black/10 w-48">
+            <button id="editarInfo" class="w-full text-left px-4 py-2 hover:bg.black/10">Editar Informações</button>
+            <button id="minhasReceitas" class="w-full text-left px-4 py-2 hover:bg-black/10">Minhas Receitas</button>
+            <button id="sair" class="w-full text-left px-4 py-2 hover:bg-black/10 text-brandRed">Sair</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <main class="max-w-5xl mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-start">
+        <!-- Placeholder de imagem -->
+        <div class="flex flex-col items-center">
+          <div class="w-[200px] h-[200px] border-2 border-black/70 bg-white grid place-items-center overflow-hidden rounded-md">
+            <img id="recipePreview" alt="Prévia da imagem" class="max-w-full max-h-full hidden" />
+            <span id="recipePreviewPlaceholder" class="text-brandBrown">Inserir Fotos</span>
+          </div>
+          <input id="recipeImage" type="file" accept="image/*" class="sr-only" />
+          <label for="recipeImage" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-brandRed text-white rounded shadow-button active:translate-y-[1px] cursor-pointer">
+            <span>Escolher imagem</span>
+          </label>
+          <p id="fileName" class="mt-2 text-sm text-brandBrown"></p>
+        </div>
+
+        <!-- Título e metadados -->
+        <div>
+          <form id="recipeForm" class="space-y-4">
+            <h1 class="text-3xl text-brandBrown">Inserir Título</h1>
+            <input type="text" name="nome" placeholder="Título da receita" required class="mt-2 block w-full rounded-md border border-black/60 p-2" />
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-brandBrown">
+              <label class="block">
+                <span class="text-sm">Tempo De Preparo (min):</span>
+                <input type="number" min="1" name="tempoMedioMinutos" required class="mt-1 block w-full rounded-md border border-black/60 p-2" />
+              </label>
+              <label class="block">
+                <span class="text-sm">Rendimento (ex.: 8 porções):</span>
+                <input type="text" name="rendimento" required class="mt-1 block w-full rounded-md border border-black/60 p-2" />
+              </label>
+              <label class="block">
+                <span class="text-sm">Nível Técnico:</span>
+                <select name="nivelTecnica" required class="mt-1 block w-full rounded-md border border-black/60 p-2">
+                  <option value="FACIL">Fácil</option>
+                  <option value="MODERADO">Moderado</option>
+                  <option value="AVANCADO">Avançado</option>
+                  <option value="PROFISSIONAL">Profissional</option>
+                </select>
+              </label>
+            </div>
+
+            <hr class="my-4 border-black/60" />
+
+          <!-- Ingredientes -->
+          <section class="mb-6">
+            <h2 class="text-2xl text-brandBrown mb-2">Ingredientes:</h2>
+            <textarea name="ingredientes" rows="6" placeholder="Digite um ingrediente por linha" class="w-full rounded-md border border-black/60 p-2"></textarea>
+          </section>
+
+          <!-- Modo de Preparo -->
+          <section>
+            <h2 class="text-2xl text-brandBrown mb-2">Modo De Preparo:</h2>
+            <textarea name="modoPreparo" rows="6" placeholder="Descreva o modo de preparo" class="w-full rounded-md border border-black/60 p-2"></textarea>
+          </section>
+
+          <div class="mt-6 text-right">
+            <p class="text-brandBrown mb-2">Clique nas informações para alterá-las!</p>
+            <button type="submit" class="px-3 py-2 bg-brandRed text-white rounded shadow-button">Enviar Receita</button>
+            <p id="recipeMsg" class="mt-2 text-sm"></p>
+          </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+<script>
+  const toggle = document.getElementById('userMenuToggle');
+  const menu = document.getElementById('userMenu');
+  const sairBtn = document.getElementById('sair');
+  const editarBtn = document.getElementById('editarInfo');
+  const minhasBtn = document.getElementById('minhasReceitas');
+
+  toggle?.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menu || !toggle) return;
+    const target = e.target;
+    if (menu.classList.contains('hidden')) return;
+    if (target === menu || target === toggle || menu.contains(target)) return;
+    menu.classList.add('hidden');
+  });
+
+  sairBtn?.addEventListener('click', () => {
+    localStorage.removeItem('authToken');
+    window.location.href = '/';
+  });
+
+  editarBtn?.addEventListener('click', () => {
+    window.location.href = '/usuario/editar';
+  });
+
+  minhasBtn?.addEventListener('click', () => {
+    window.location.href = '/usuario/receitas';
+  });
+</script>
+<script>
+  const form = document.getElementById('recipeForm');
+  const msg = document.getElementById('recipeMsg');
+  const imageInput = document.getElementById('recipeImage');
+  const previewImg = document.getElementById('recipePreview');
+  const previewPh = document.getElementById('recipePreviewPlaceholder');
+  const fileNameEl = document.getElementById('fileName');
+
+  // Using textareas for ingredientes and modo de preparo in this schema
+  let imagemBase64 = null;
+  imageInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      imagemBase64 = null;
+      previewImg.classList.add('hidden');
+      previewPh.classList.remove('hidden');
+      fileNameEl.textContent = '';
+      return;
+    }
+    fileNameEl.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === 'string') {
+        imagemBase64 = result.split(',')[1] ?? result; // remove data URL prefix
+        previewImg.src = reader.result;
+        previewImg.classList.remove('hidden');
+        previewPh.classList.add('hidden');
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Removed list adders; textarea will be sent as-is
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const ingredientesText = (data.ingredientes || '').trim();
+      const modoPreparoText = (data.modoPreparo || '').trim();
+      if (!ingredientesText || !modoPreparoText) {
+        throw new Error('Preencha ingredientes e modo de preparo.');
+      }
+
+      msg.textContent = 'Enviando receita...';
+      msg.className = 'mt-2 text-sm text-brandBrown';
+
+      const token = localStorage.getItem('authToken');
+      const payload = {
+        nome: data.nome,
+        ingredientes: ingredientesText,
+        modoPreparo: modoPreparoText,
+        tempoMedioMinutos: Number(data.tempoMedioMinutos),
+        rendimento: data.rendimento,
+        nivelTecnica: data.nivelTecnica,
+        imagemBase64: imagemBase64 || undefined
+      };
+
+      const res = await fetch('http://localhost:8080/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body.message || 'Falha ao enviar receita');
+      }
+
+      msg.textContent = 'Receita enviada com sucesso!';
+      msg.className = 'mt-2 text-sm text-green-700';
+    } catch (err) {
+      msg.textContent = String(err.message || err);
+      msg.className = 'mt-2 text-sm text-brandRed';
+    }
+  });
+</script>
