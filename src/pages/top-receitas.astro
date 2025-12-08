@@ -1,0 +1,150 @@
+---
+const title = 'Top Receitas - BemComido';
+
+const pool = [
+  { id: '1', nome: 'Bolo de Cenoura', tempo: 45, rendimento: '8 porções', nivel: 'FACIL', modoPreparo: '• Pré-aqueça o forno a 180°C.\n• Bata no liquidificador: cenouras picadas, ovos e óleo.\n• Em uma tigela, misture açúcar, farinha e fermento.\n• Incorpore a mistura líquida aos secos até ficar homogêneo.\n• Despeje em forma untada e enfarinhada.\n• Asse por 40–45 min (teste do palito).\n• Opcional: cobertura de chocolate após esfriar.' },
+  { id: '2', nome: 'Lasanha à Bolonhesa', tempo: 60, rendimento: '6 porções', nivel: 'MODERADO', modoPreparo: '• Molho: refogue cebola e alho; doure carne moída; junte tomate e cozinhe.\n• Massa: use pré-cozida ou fresca (cozinhe até al dente).\n• Camadas: molho, massa, muçarela e parmesão; repetir.\n• Finalização: última camada com queijo.\n• Forno: 200°C por 25–30 min até gratinar.\n• Repouso: 10 min antes de servir.' },
+  { id: '3', nome: 'Risoto de Cogumelos', tempo: 35, rendimento: '4 porções', nivel: 'AVANCADO', modoPreparo: '• Aqueça caldo de legumes/galinha.\n• Refogue cebola na manteiga e azeite; adicione arroz arbóreo.\n• Deglace com vinho branco; mexa.\n• Adicione caldo aos poucos, mexendo sempre.\n• Salteie cogumelos separadamente; incorpore ao risoto.\n• Finalize com manteiga e parmesão; ajuste sal e pimenta.\n• Sirva cremoso (ponto all’onda).' },
+  { id: '4', nome: 'Torta de Limão', tempo: 50, rendimento: '10 porções', nivel: 'FACIL', modoPreparo: '• Base: triture biscoito e misture com manteiga; forre a forma.\n• Recheio: leite condensado + suco de limão + creme de leite; gelar.\n• Merengue: claras batidas com açúcar até picos firmes.\n• Montagem: base, recheio, merengue por cima.\n• Forno: 200°C, apenas dourar o merengue.\n• Gelar antes de servir.' },
+  { id: '5', nome: 'Feijoada', tempo: 120, rendimento: '10 porções', nivel: 'PROFISSIONAL', modoPreparo: '• Deixe o feijão preto de molho por 8h.\n• Afervente carnes salgadas para dessalgar; corte em pedaços.\n• Cozinhe o feijão com louro; em outra panela, refogue as carnes.\n• Una tudo; cozinhe até calda encorpar.\n• Ajuste sal/pimenta; finalize com cheiro-verde.\n• Sirva com arroz, farofa, couve e laranja.' },
+  { id: '6', nome: 'Moqueca Capixaba', tempo: 55, rendimento: '5 porções', nivel: 'MODERADO', modoPreparo: 'Tempere o peixe, refogue com urucum, cebola e pimentões; cozinhe.' },
+  { id: '7', nome: 'Pão de Queijo', tempo: 30, rendimento: '20 unidades', nivel: 'FACIL', modoPreparo: '• Ferva leite com óleo; escalde polvilho azedo/doce.\n• Adicione ovos e sal; misture bem.\n• Incorpore queijo ralado (meia cura).\n• Modele bolinhas; disponha em assadeira.\n• Asse a 200°C por 20–25 min até dourar.' },
+  { id: '8', nome: 'Strogonoff de Frango', tempo: 30, rendimento: '4 porções', nivel: 'FACIL', modoPreparo: '• Refogue cebola e alho na manteiga; doure frango em tiras.\n• Junte ketchup e mostarda; cozinhe.\n• Adicione creme de leite; ajuste sal e pimenta.\n• Finalize com cogumelos; sirva com arroz e batata palha.' },
+  { id: '9', nome: 'Escondidinho de Carne', tempo: 50, rendimento: '6 porções', nivel: 'MODERADO', modoPreparo: 'Monte camadas de purê e carne refogada, leve ao forno para gratinar.' },
+  { id: '10', nome: 'Brigadeiro Gourmet', tempo: 25, rendimento: '30 unidades', nivel: 'FACIL', modoPreparo: '• Panela: leite condensado + cacau 100% + manteiga.\n• Fogo baixo: mexa até ponto de desgrudar.\n• Esfrie; unte mãos com manteiga.\n• Enrole e passe em granulados ou castanhas.\n• Armazene em temperatura ambiente.' },
+  { id: '11', nome: 'Quiche de Alho-Poró', tempo: 45, rendimento: '8 fatias', nivel: 'MODERADO', modoPreparo: 'Faça massa podre, recheio com alho-poró e creme; asse até dourar.' },
+  { id: '12', nome: 'Coxinha', tempo: 70, rendimento: '25 unidades', nivel: 'AVANCADO', modoPreparo: '• Caldo: cozinhe frango com temperos; reserve caldo.\n• Massa: farinha na panela com caldo; mexa até soltar.\n• Recheio: frango desfiado com catupiry/creme e temperos.\n• Modelagem: envolva recheio com massa; faça formato.\n• Empanar: passe em ovo e farinha de rosca.\n• Fritar: óleo quente até dourar.' },
+  { id: '13', nome: 'Panqueca de Carne', tempo: 40, rendimento: '10 unidades', nivel: 'FACIL', modoPreparo: 'Faça massas finas, recheie com carne, cubra com molho e leve ao forno.' },
+  { id: '14', nome: 'Sopa de Abóbora', tempo: 35, rendimento: '4 porções', nivel: 'FACIL', modoPreparo: 'Cozinhe abóbora com caldo, bata e ajuste temperos; sirva quente.' },
+  { id: '15', nome: 'Arroz de Pato', tempo: 75, rendimento: '6 porções', nivel: 'AVANCADO', modoPreparo: 'Cozinhe pato, faça arroz com caldo e misture carnes desfiadas.' },
+  { id: '16', nome: 'Frango Assado', tempo: 80, rendimento: '6 porções', nivel: 'FACIL', modoPreparo: 'Tempere frango, asse até dourar e sirva com acompanhamentos.' },
+  { id: '17', nome: 'Hambúrguer Artesanal', tempo: 50, rendimento: '4 porções', nivel: 'MODERADO', modoPreparo: 'Modele e grelhe hambúrgueres, monte com pão e complementos.' },
+  { id: '18', nome: 'Cuscuz Nordestino', tempo: 20, rendimento: '4 porções', nivel: 'FACIL', modoPreparo: 'Hidrate flocos, leve à cuscuzeira e sirva com acompanhamentos.' },
+  { id: '19', nome: 'Picanha na Brasa', tempo: 60, rendimento: '5 porções', nivel: 'AVANCADO', modoPreparo: 'Grelhe picanha na brasa, fatie e sirva; ajuste sal grosso.' },
+  { id: '20', nome: 'Brownie', tempo: 35, rendimento: '12 pedaços', nivel: 'FACIL', modoPreparo: '• Derreta chocolate com manteiga.\n• Misture açúcar e ovos; incorpore chocolate.\n• Adicione farinha e cacau; não mexa demais.\n• Forno: 180°C por 20–25 min (casquinha e miolo úmido).\n• Repouso: 10 min antes de cortar.' },
+  { id: '21', nome: 'Macarrão à Carbonara', tempo: 25, rendimento: '4 porções', nivel: 'FACIL', modoPreparo: 'Cozinhe massa, misture com ovos, queijo e pancetta fora do fogo.' },
+  { id: '22', nome: 'Baklava', tempo: 90, rendimento: '12 pedaços', nivel: 'PROFISSIONAL', modoPreparo: 'Monte camadas de massa filo com nozes e calda; asse até dourar.' },
+  { id: '23', nome: 'Ceviche', tempo: 20, rendimento: '4 porções', nivel: 'MODERADO', modoPreparo: 'Marine peixe em cítricos com temperos; sirva fresco imediatamente.' },
+  { id: '24', nome: 'Pizza Margherita', tempo: 70, rendimento: '8 fatias', nivel: 'AVANCADO', modoPreparo: 'Abra massa, cubra com molho e mozzarella; asse em alta temperatura.' }
+];
+
+// Seeded RNG (mulberry32) for deterministic weekly shuffle
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function () {
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Get a weekly seed: year * 100 + weekNumber so it changes every 7 days
+function getWeekSeed(date = new Date()) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  // ISO week calculation
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return d.getUTCFullYear() * 100 + weekNo;
+}
+
+function pickTop20Weekly(arr) {
+  const seed = getWeekSeed();
+  const rand = mulberry32(seed);
+  const shuffled = [...arr].sort(() => rand() - 0.5);
+  return shuffled.slice(0, 20);
+}
+
+const top20 = pickTop20Weekly(pool);
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <!-- Navbar -->
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <span class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</span>
+        <a href="/usuario/receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Minhas Receitas</a>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-3xl text-brandBrown mb-4">Top 20 Receitas</h1>
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {top20.map((r, i) => (
+          <div class="bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-brandBrown">{i + 1}. {r.nome}</h2>
+              <span class="text-xs px-2 py-1 rounded bg-brandRed text-white">{r.nivel}</span>
+            </div>
+            <div class="mt-2 text-sm text-brandBrown">
+              <p><strong>Tempo:</strong> {r.tempo} min</p>
+              <p><strong>Rendimento:</strong> {r.rendimento}</p>
+            </div>
+            <div class="mt-3 flex justify-end">
+              <button
+                data-id={r.id}
+                data-preparo={r.modoPreparo ?? 'Modo de preparo não disponível.'}
+                class="mt-3 w-full bg-brandRed text-white px-3 py-2 rounded shadow-button abrir-modal"
+              >Ver detalhes</button>
+            </div>
+          </div>
+        ))}
+      </section>
+    </main>
+    <!-- Modal de Modo de Preparo -->
+    <div id="modal-preparo" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+      <div class="bg-white max-w-xl w-full rounded-lg shadow-card">
+        <div class="flex items-center justify-between px-4 py-3 border-b">
+          <h3 class="text-lg font-semibold text-brandText">Modo de Preparo</h3>
+          <button id="fechar-modal" aria-label="Fechar" class="text-brandMuted hover:text-brandText text-xl">×</button>
+        </div>
+        <div id="conteudo-preparo" class="px-4 py-4 whitespace-pre-line leading-relaxed text-brandText"></div>
+        <div class="px-4 py-3 border-t flex justify-end">
+          <button id="fechar-modal-rodape" class="px-3 py-1 bg-brandRed text-white rounded">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const modal = document.getElementById('modal-preparo');
+    const conteudo = document.getElementById('conteudo-preparo');
+    const fechar = () => { modal?.classList.add('hidden'); modal?.classList.remove('flex'); };
+    document.getElementById('fechar-modal')?.addEventListener('click', fechar);
+    document.getElementById('fechar-modal-rodape')?.addEventListener('click', fechar);
+    modal?.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+
+    // Use data-preparo embedded in the button as immediate content
+    const getPreparoLocal = (btn) => btn.getAttribute('data-preparo') || 'Modo de preparo não disponível.';
+
+    document.querySelectorAll('.abrir-modal').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        let texto = getPreparoLocal(btn);
+        try {
+          const res = await fetch(`http://localhost:8080/recipes/${id}`);
+          if (res.ok) {
+            const data = await res.json();
+            texto = data.modoPreparo || data.preparo || data.instrucoes || texto;
+          }
+        } catch {}
+        conteudo.textContent = texto;
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+      });
+    });
+  </script>
+</html>

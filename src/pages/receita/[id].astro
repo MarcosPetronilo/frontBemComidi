@@ -1,0 +1,154 @@
+---
+import type { AstroGlobal } from "astro";
+
+interface Receita {
+  id: string;
+  nome: string;
+  imagem?: string;
+  ingredientes?: string[];
+  modoPreparo: string;
+  tempoMedioMinutos?: number;
+  rendimento?: string;
+  nivelTecnica?: string;
+}
+
+export async function getStaticPaths() {
+  // No pre-rendered paths; this page will be server-rendered on demand
+  return { paths: [], fallback: "blocking" };
+}
+
+export async function get({ params }: AstroGlobal) {
+  const id = params.id as string;
+  let receita: Receita | null = null;
+
+  // Try backend first
+  try {
+    const res = await fetch(`http://localhost:8080/recipes/${id}`);
+    if (res.ok) {
+      const data = await res.json();
+      // Map possible backend schema keys to our view
+      receita = {
+        id: data.id?.toString() ?? id,
+        nome: data.nome ?? data.title ?? "Receita",
+        imagem: data.imagemUrl ?? data.imagemBase64 ?? undefined,
+        ingredientes: Array.isArray(data.ingredientes)
+          ? data.ingredientes
+          : typeof data.ingredientes === "string"
+          ? data.ingredientes.split(/\r?\n/).filter(Boolean)
+          : undefined,
+        modoPreparo:
+          data.modoPreparo ?? data.preparo ?? data.instrucoes ?? "Modo de preparo não disponível.",
+        tempoMedioMinutos: data.tempoMedioMinutos ?? data.tempo ?? undefined,
+        rendimento: data.rendimento ?? undefined,
+        nivelTecnica: data.nivelTecnica ?? undefined,
+      };
+    }
+  } catch {}
+
+  // Fallback: use same mocked pool as Top Receitas
+  if (!receita) {
+    const pool: Receita[] = [
+      {
+        id: "1",
+        nome: "Bolo de Cenoura",
+        imagem: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop&q=60",
+        ingredientes: ["3 ovos", "2 xícaras de farinha", "2 cenouras"],
+        modoPreparo:
+          "Bata as cenouras com ovos e óleo. Misture com os secos e asse por 40-45 minutos.",
+        tempoMedioMinutos: 45,
+        rendimento: "10 porções",
+        nivelTecnica: "FACIL",
+      },
+      {
+        id: "2",
+        nome: "Feijoada",
+        imagem: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=800&auto=format&fit=crop&q=60",
+        ingredientes: ["Feijão preto", "Carnes", "Tempero"],
+        modoPreparo: "Cozinhe o feijão e as carnes separadamente. Misture, tempere e sirva.",
+        tempoMedioMinutos: 120,
+        rendimento: "8 porções",
+        nivelTecnica: "MODERADO",
+      },
+      {
+        id: "3",
+        nome: "Salada Caesar",
+        imagem: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&auto=format&fit=crop&q=60",
+        ingredientes: ["Alface", "Croutons", "Molho Caesar"],
+        modoPreparo: "Misture alface com croutons e finalize com molho Caesar.",
+        tempoMedioMinutos: 10,
+        rendimento: "2 porções",
+        nivelTecnica: "FACIL",
+      },
+    ];
+    receita = pool.find((r) => r.id === id) ?? pool[0];
+  }
+
+  return {
+    props: { receita },
+  };
+}
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{Astro.props.receita.nome} | Bem Comido</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="bg-[#faf7f2] text-brandText">
+    <!-- Navbar simplified -->
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <a href="/top-receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</a>
+        <a href="/usuario/receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Minhas Receitas</a>
+        <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6">
+      <section class="bg-white rounded-lg shadow-card p-6">
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="md:w-1/2">
+            <img src={Astro.props.receita.imagem} alt={Astro.props.receita.nome} class="w-full h-64 object-cover rounded" />
+          </div>
+          <div class="md:w-1/2">
+            <h1 class="text-2xl font-semibold text-brandText">{Astro.props.receita.nome}</h1>
+            <div class="mt-2 text-sm text-brandMuted">
+              {Astro.props.receita.tempoMedioMinutos ? (
+                <span>Tempo: {Astro.props.receita.tempoMedioMinutos} min</span>
+              ) : null}
+              {Astro.props.receita.rendimento ? (
+                <span class="ml-3">Rendimento: {Astro.props.receita.rendimento}</span>
+              ) : null}
+              {Astro.props.receita.nivelTecnica ? (
+                <span class="ml-3">Nível: {Astro.props.receita.nivelTecnica}</span>
+              ) : null}
+            </div>
+
+            {Astro.props.receita.ingredientes ? (
+              <div class="mt-4">
+                <h2 class="text-lg font-medium">Ingredientes</h2>
+                <ul class="list-disc ml-5 mt-2 space-y-1">
+                  {Astro.props.receita.ingredientes.map((ing) => (
+                    <li>{ing}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h2 class="text-xl font-semibold text-brandText">Modo de Preparo</h2>
+          <div class="mt-3 whitespace-pre-line leading-relaxed text-brandText">
+            {Astro.props.receita.modoPreparo}
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
