@@ -1,0 +1,116 @@
+---
+const title = 'BemComido - Favoritos';
+const favoritos = [
+  { id: 'lasanha', nome: 'Lasanha à Bolonhesa', tempo: 60, rendimento: '6 porções', nivel: 'MODERADO', modoPreparo: '• Molho: refogue cebola e alho; doure carne moída; junte tomate e cozinhe.\n• Massa: use pré-cozida ou fresca (cozinhe até al dente).\n• Camadas: molho, massa, muçarela e parmesão; repetir.\n• Finalização: última camada com queijo.\n• Forno: 200°C por 25–30 min até gratinar.\n• Repouso: 10 min antes de servir.' },
+  { id: 'pizza', nome: 'Pizza Margherita', tempo: 70, rendimento: '8 fatias', nivel: 'AVANCADO', modoPreparo: '• Massa: misture farinha, água, sal e fermento; sove e deixe fermentar.\n• Abra discos; cubra com molho de tomate, mozzarella e manjericão.\n• Asse em forno bem quente até borda inflar e queijo derreter.' },
+  { id: 'feijoada', nome: 'Feijoada', tempo: 120, rendimento: '10 porções', nivel: 'PROFISSIONAL', modoPreparo: '• Deixe o feijão preto de molho por 8h.\n• Afervente carnes salgadas para dessalgar; corte em pedaços.\n• Cozinhe o feijão com louro; em outra panela, refogue as carnes.\n• Una tudo; cozinhe até calda encorpar.\n• Ajuste sal/pimenta; finalize com cheiro-verde.\n• Sirva com arroz, farofa, couve e laranja.' },
+  { id: 'strogonoff', nome: 'Strogonoff de Frango', tempo: 30, rendimento: '4 porções', nivel: 'FACIL', modoPreparo: '• Refogue cebola e alho na manteiga; doure frango em tiras.\n• Junte ketchup e mostarda; cozinhe.\n• Adicione creme de leite; ajuste sal e pimenta.\n• Finalize com cogumelos; sirva com arroz e batata palha.' },
+  { id: 'maionese', nome: 'Maionese de Batata', tempo: 25, rendimento: '6 porções', nivel: 'FACIL', modoPreparo: '• Cozinhe batatas em cubos até al dente e deixe esfriar.\n• Misture com cenoura, ervilha e milho (opcional).\n• Tempere com sal, pimenta, limão e salsinha.\n• Incorpore maionese até ficar cremoso; leve à geladeira.' },
+];
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <a href="/top-receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</a>
+        <span class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</span>
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</a>
+          <a href="/usuario/buscar" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Usuário</a>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
+        <div class="relative ml-2">
+          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
+          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-44 bg-white text-slate-800 rounded-md border border-black/10 shadow-md hidden">
+            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Editar informações</a>
+            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Minhas receitas</a>
+            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-slate-800">Sair</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-3xl text-brandBrown mb-4">Favoritos</h1>
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {favoritos.map((r) => (
+          <div class="bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-brandBrown">{r.nome}</h2>
+              <span class="text-xs px-2 py-1 rounded bg-brandRed text-white">{r.nivel}</span>
+            </div>
+            <div class="mt-2 text-sm text-brandBrown">
+              <p><strong>Tempo:</strong> {r.tempo} min</p>
+              <p><strong>Rendimento:</strong> {r.rendimento}</p>
+            </div>
+            <div class="mt-3 flex justify-end">
+              <button
+                data-id={r.id}
+                data-preparo={r.modoPreparo ?? 'Modo de preparo não disponível.'}
+                class="mt-3 w-full bg-brandRed text-white px-3 py-2 rounded shadow-button abrir-modal"
+              >Ver detalhes</button>
+            </div>
+          </div>
+        ))}
+      </section>
+    </main>
+    <!-- Modal de Modo de Preparo -->
+    <div id="modal-preparo" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+      <div class="bg-white max-w-xl w-full rounded-lg shadow-card">
+        <div class="flex items-center justify-between px-4 py-3 border-b">
+          <h3 class="text-lg font-semibold text-brandText">Modo de Preparo</h3>
+          <button id="fechar-modal" aria-label="Fechar" class="text-brandMuted hover:text-brandText text-xl">×</button>
+        </div>
+        <div id="conteudo-preparo" class="px-4 py-4 whitespace-pre-line leading-relaxed text-brandText"></div>
+        <div class="px-4 py-3 border-t flex justify-end">
+          <button id="fechar-modal-rodape" class="px-3 py-1 bg-brandRed text-white rounded">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const modal = document.getElementById('modal-preparo');
+    const conteudo = document.getElementById('conteudo-preparo');
+    const fechar = () => { modal?.classList.add('hidden'); modal?.classList.remove('flex'); };
+    document.getElementById('fechar-modal')?.addEventListener('click', fechar);
+    document.getElementById('fechar-modal-rodape')?.addEventListener('click', fechar);
+    modal?.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+
+    const getPreparoLocal = (btn) => btn.getAttribute('data-preparo') || 'Modo de preparo não disponível.';
+    document.querySelectorAll('.abrir-modal').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        let texto = getPreparoLocal(btn);
+        try {
+          const res = await fetch(`http://localhost:8080/recipes/${id}`);
+          if (res.ok) {
+            const data = await res.json();
+            texto = data.modoPreparo || data.preparo || data.instrucoes || texto;
+          }
+        } catch {}
+        conteudo.textContent = texto;
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+      });
+    });
+    const authBtn = document.getElementById('auth-menu-btn');
+    const authMenu = document.getElementById('auth-menu');
+    authBtn?.addEventListener('click', () => authMenu?.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+      if (!authBtn?.contains(e.target) && !authMenu?.contains(e.target)) authMenu?.classList.add('hidden');
+    });
+    document.getElementById('sair-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/';
+    });
+  </script>
+</html>

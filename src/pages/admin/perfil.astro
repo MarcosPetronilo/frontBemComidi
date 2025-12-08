@@ -1,0 +1,121 @@
+---
+const title = 'BemComido - Perfil de Administrador';
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/top-receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</a>
+        <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</a>
+        <span class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Usuário</span>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
+        <div class="relative ml-2">
+          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
+          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-52 bg-white text-slate-800 rounded-md border border-black/10 shadow-md hidden">
+            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Editar informações</a>
+            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Minhas receitas</a>
+            <a href="/admin/perfil" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Perfil de Administrador</a>
+            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-slate-800">Sair</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-2xl text-brandBrown mb-6">Bem Vindo Administrador BemComido</h1>
+      <section class="bg-brandYellow/70 rounded-md p-6 shadow-md ring-1 ring-black/10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div>
+            <label class="block text-sm font-medium text-brandMuted mb-2">Pesquisar Receita</label>
+            <div class="flex items-center gap-2">
+              <span class="text-brandBrown">🔍</span>
+              <input type="text" placeholder="Pesquisar Receita" class="flex-1 input rounded-md border-black/40" />
+            </div>
+            <div class="mt-6 text-brandBrown">
+              <p>Receitas Postadas: <strong>7502</strong></p>
+              <p>Receitas Excluídas: <strong>1910</strong></p>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-brandMuted mb-2">Pesquisar Usuário</label>
+            <div class="flex items-center gap-2">
+              <span class="text-brandBrown">🔍</span>
+              <input type="text" placeholder="Pesquisar Usuário" class="flex-1 input rounded-md border-black/40" />
+            </div>
+            <div class="mt-6 text-brandBrown">
+              <p>Contas Cadastradas: <strong>5325</strong></p>
+              <p>Contas Excluídas: <strong>547</strong></p>
+              <p>Contas Ativas: <strong>4607</strong></p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <a class="px-3 py-2 bg-brandRed text-white rounded shadow-button text-center" href="/admin/relatorios/usuarios">Relatório Geral de Usuários</a>
+          <a class="px-3 py-2 bg-brandRed text-white rounded shadow-button text-center" href="/admin/relatorios/receitas">Relatório Geral de Receitas</a>
+          <a class="px-3 py-2 bg-brandRed text-white rounded shadow-button text-center" href="/admin/relatorios/receitas-excluidas">Relatório de Receitas Excluídas</a>
+          <a class="px-3 py-2 bg-brandRed text-white rounded shadow-button text-center" href="/admin/relatorios/banimentos">Relatório de Banimento de Usuários</a>
+        </div>
+      </section>
+    </main>
+
+    <div id="modal-preparo" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+      <div class="bg-white max-w-xl w-full rounded-lg shadow-card">
+        <div class="flex items-center justify-between px-4 py-3 border-b">
+          <h3 class="text-lg font-semibold text-brandText">Detalhe</h3>
+          <button id="fechar-modal" aria-label="Fechar" class="text-brandMuted hover:text-brandText text-xl">×</button>
+        </div>
+        <div id="conteudo-preparo" class="px-4 py-4 whitespace-pre-line leading-relaxed text-brandText"></div>
+        <div class="px-4 py-3 border-t flex justify-end">
+          <button id="fechar-modal-rodape" class="px-3 py-1 bg-brandRed text-white rounded">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    // Protect admin route by auth token
+    (function(){
+      const token = localStorage.getItem('authToken');
+      if(!token){
+        window.location.href = '/login';
+      }
+    })();
+
+    document.querySelector('[data-favoritos]')?.addEventListener('click', () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        window.location.href = '/favoritos';
+      } else {
+        window.location.href = '/login';
+      }
+    });
+
+    const authBtn = document.getElementById('auth-menu-btn');
+    const authMenu = document.getElementById('auth-menu');
+    authBtn?.addEventListener('click', () => authMenu?.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+      if (!authBtn?.contains(e.target) && !authMenu?.contains(e.target)) authMenu?.classList.add('hidden');
+    });
+    document.getElementById('sair-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/';
+    });
+
+    const modal = document.getElementById('modal-preparo');
+    const conteudo = document.getElementById('conteudo-preparo');
+    const fechar = () => { modal?.classList.add('hidden'); modal?.classList.remove('flex'); };
+    document.getElementById('fechar-modal')?.addEventListener('click', fechar);
+    document.getElementById('fechar-modal-rodape')?.addEventListener('click', fechar);
+    modal?.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+  </script>
+</html>

@@ -13,9 +13,10 @@ const title = 'BemComido - Principal';
     <header class="w-full bg-brandRed text-white shadow-md">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <a href="/top-receitas" class="px-3 py-1 bg-white text-[#b21f1f] rounded shadow-button">Top Receitas</a>
-        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
         <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</button>
-        <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
+         <a href="/usuario/buscar" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Usuário</a>
+         <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
           <span>BC</span>
           <span aria-hidden="true">☕</span>
         </div>
@@ -30,10 +31,139 @@ const title = 'BemComido - Principal';
       <div class="flex items-center gap-3">
         <div class="flex-1 flex items-center gap-2 bg-white rounded-md border border-black/60 p-2 shadow-sm">
           <span class="text-brandBrown">🔍</span>
-          <input type="text" placeholder="Digite o ingrediente" class="flex-1 outline-none" />
+          <input id="busca" type="text" placeholder="Pesquisar por nome ou ingrediente (ex: queijo, maçã)" class="flex-1 outline-none" />
         </div>
-        <button class="px-3 py-1 bg-brandRed text-white rounded shadow-button active:translate-y-[1px]">Adicionar</button>
+        <button id="btnBuscar" class="px-3 py-1 bg-brandRed text-white rounded shadow-button active:translate-y-[1px]">Buscar</button>
       </div>
+
+      <p class="mt-2 text-sm text-brandMuted">Dica: pesquise por itens como "queijo", "maçã", "frango", "arroz", "chocolate"…</p>
+
+      <div id="resultados" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+      <!-- Modal Modo de Preparo -->
+      <div id="modal-preparo" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+        <div class="bg-white max-w-xl w-full rounded-lg shadow-card">
+          <div class="flex items-center justify-between px-4 py-3 border-b">
+            <h3 class="text-lg font-semibold text-brandText">Modo de Preparo</h3>
+            <button id="fechar-modal" aria-label="Fechar" class="text-brandMuted hover:text-brandText text-xl">×</button>
+          </div>
+          <div id="conteudo-preparo" class="px-4 py-4 whitespace-pre-line leading-relaxed text-brandText"></div>
+          <div class="px-4 py-3 border-t flex justify-end">
+            <button id="fechar-modal-rodape" class="px-3 py-1 bg-brandRed text-white rounded">Fechar</button>
+          </div>
+        </div>
+      </div>
+        <script>
+          const bases = [
+            'Bolo', 'Pudim', 'Torta', 'Sopa', 'Arroz', 'Feijão', 'Farofa', 'Cuscuz', 'Panqueca', 'Empadão',
+            'Moqueca', 'Strogonoff', 'Lasanha', 'Escondidinho', 'Quiche', 'Salada', 'Sanduíche', 'Hambúrguer', 'Pastel', 'Coxinha',
+            'Brigadeiro', 'Brownie', 'Mousse', 'Sorvete', 'Pão', 'Pão de queijo', 'Picanha', 'Frango assado', 'Peixe assado', 'Carne de panela'
+          ];
+          const itens = [
+            'queijo', 'maçã', 'banana', 'chocolate', 'goiabada', 'doce de leite', 'cenoura', 'batata', 'tomate', 'cebola',
+            'alho', 'pimentão', 'arroz', 'feijão', 'farinha', 'polvilho', 'leite', 'ovo', 'manteiga', 'óleo',
+            'frango', 'carne', 'porco', 'peixe', 'camarão', 'linguiça', 'bacon', 'milho', 'ervilha', 'abóbora',
+            'abobrinha', 'quiabo', 'couve', 'alface', 'rúcula', 'manjericão', 'salsa', 'cebolinha', 'coentro', 'pimenta',
+            'limão', 'laranja', 'maracujá', 'morango', 'uva', 'ananás', 'coco', 'amendoim', 'castanha', 'noz'
+          ];
+
+          const receitas = [];
+          let idSeq = 1000;
+          for (let b of bases) {
+            for (let i = 0; i < itens.length; i += 2) {
+              const ingA = itens[i];
+              const ingB = itens[i+1] || 'açúcar';
+              const nome = `${b} de ${ingA}`;
+              receitas.push({ id: idSeq++, nome, ingredientes: [ingA, ingB, 'sal', 'água'] });
+            }
+          }
+          while (receitas.length < 220) {
+            const b = bases[Math.floor(Math.random()*bases.length)];
+            const a = itens[Math.floor(Math.random()*itens.length)];
+            const c = itens[Math.floor(Math.random()*itens.length)];
+            receitas.push({ id: idSeq++, nome: `${b} com ${a} e ${c}`, ingredientes: [a, c, 'sal'] });
+          }
+
+          const resultadosEl = document.getElementById('resultados');
+          const buscaEl = document.getElementById('busca');
+          const btnBuscar = document.getElementById('btnBuscar');
+
+          function renderResultados(lista) {
+            resultadosEl.innerHTML = '';
+            if (!lista.length) {
+              resultadosEl.innerHTML = '<div class="text-brandMuted">Nenhuma receita encontrada.</div>';
+              return;
+            }
+            lista.slice(0, 30).forEach((r) => {
+              const card = document.createElement('div');
+              card.className = 'bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10';
+              const preparoTopicos = [
+                `• Separe os ingredientes: ${r.ingredientes.join(', ')}.`,
+                `• Prepare a base conforme a receita (ex.: massa, caldo, refogado).`,
+                `• Incorpore o ingrediente principal: ${r.ingredientes[0]}.`,
+                `• Ajuste sal e temperos a gosto.`,
+                `• Cozinhe/asse até atingir o ponto ideal.`,
+                `• Sirva e aproveite.`
+              ].join('\n');
+              card.innerHTML = `
+                <h3 class="text-lg font-semibold text-brandBrown">${r.nome}</h3>
+                <p class="mt-2 text-sm text-brandBrown"><strong>Ingredientes:</strong> ${r.ingredientes.join(', ')}</p>
+                <div class="mt-3 flex justify-end">
+                  <button data-preparo="${preparoTopicos.replace(/"/g, '&quot;')}" class="px-3 py-1 bg-brandRed text-white rounded abrir-modal">Ver detalhes</button>
+                </div>
+              `;
+              resultadosEl.appendChild(card);
+            });
+          }
+
+          function buscar() {
+            const q = (buscaEl.value || '').trim().toLowerCase();
+            if (!q) {
+              renderResultados(receitas.slice(0, 30));
+              return;
+            }
+            const termos = q.split(/\s+/).filter(Boolean);
+            const res = receitas.filter((r) => {
+              const nome = r.nome.toLowerCase();
+              const ings = r.ingredientes.map((x) => x.toLowerCase());
+              return termos.some((t) => nome.includes(t) || ings.some((ing) => ing.includes(t)));
+            });
+            renderResultados(res);
+          }
+
+          const modal = document.getElementById('modal-preparo');
+          const conteudo = document.getElementById('conteudo-preparo');
+          const fechar = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+          document.getElementById('fechar-modal')?.addEventListener('click', fechar);
+          document.getElementById('fechar-modal-rodape')?.addEventListener('click', fechar);
+          modal?.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+
+          function wireModal() {
+            document.querySelectorAll('.abrir-modal').forEach((btn) => {
+              btn.addEventListener('click', () => {
+                const texto = btn.getAttribute('data-preparo') || 'Modo de preparo não disponível.';
+                conteudo.textContent = texto;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+              });
+            });
+          }
+
+          btnBuscar.addEventListener('click', () => { buscar(); wireModal(); });
+          buscaEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { buscar(); wireModal(); } });
+          renderResultados(receitas.slice(0, 30));
+          wireModal();
+        </script>
     </main>
   </body>
+  <script>
+    document.querySelector('[data-favoritos]')?.addEventListener('click', () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        window.location.href = '/favoritos';
+      } else {
+        window.location.href = '/login';
+      }
+    });
+  </script>
 </html>

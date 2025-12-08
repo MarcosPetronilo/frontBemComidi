@@ -1,0 +1,95 @@
+---
+const title = 'BemComido - Relatório de Banimento de Usuários';
+// Mock metrics and bans list
+const metrics = {
+  totalBanidos: 128,
+  banidosUltimos30Dias: 12,
+  apelacoesUltimos30Dias: 7,
+  apelacoesDeferidas: 3,
+  motivosMaisComuns: [
+    { motivo: 'Conduta abusiva', quantidade: 56 },
+    { motivo: 'Discurso de ódio', quantidade: 21 },
+    { motivo: 'Assédio', quantidade: 18 },
+    { motivo: 'Fraude/Manipulação', quantidade: 24 },
+    { motivo: 'Compartilhamento de conteúdo impróprio', quantidade: 9 },
+  ],
+};
+const banimentos = Array.from({ length: 20 }, (_, i) => ({
+  id: i + 1,
+  usuario: `Usuário ${Math.floor(Math.random()*500)+1}`,
+  dataBanimento: new Date(Date.now() - Math.floor(Math.random()*60)*86400000).toLocaleDateString('pt-BR'),
+  motivo: ['Conduta abusiva','Discurso de ódio','Assédio','Fraude/Manipulação','Conteúdo impróprio'][Math.floor(Math.random()*5)],
+  duracao: ['7 dias','30 dias','Permanente'][Math.floor(Math.random()*3)],
+  apelou: ['Sim','Não'][Math.floor(Math.random()*2)],
+  resultadoApelacao: ['Deferida','Indeferida','N/A'][Math.floor(Math.random()*3)],
+}));
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/admin/perfil" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Voltar</a>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-2xl text-brandBrown mb-4">Relatório de Banimento de Usuários</h1>
+      <section class="bg-[#fff7e6] rounded-md p-6 shadow-md ring-1 ring-black/10">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-brandBrown">
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Total Banidos</p>
+            <p class="text-2xl font-semibold">{metrics.totalBanidos}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Banidos (30 dias)</p>
+            <p class="text-2xl font-semibold">{metrics.banidosUltimos30Dias}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Apelações (30 dias)</p>
+            <p class="text-2xl font-semibold">{metrics.apelacoesUltimos30Dias}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Apelações Deferidas</p>
+            <p class="text-2xl font-semibold">{metrics.apelacoesDeferidas}</p>
+          </div>
+        </div>
+        <hr class="my-6 border-black/20" />
+        <h2 class="text-xl text-brandBrown mb-3">Motivos mais comuns</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {metrics.motivosMaisComuns.map(m => (
+            <div class="p-4 bg-white rounded-md border border-black/10 shadow-sm">
+              <p class="text-sm text-brandBrown">{m.motivo}</p>
+              <p class="text-2xl font-semibold text-brandBrown">{m.quantidade}</p>
+            </div>
+          ))}
+        </div>
+        <h2 class="text-xl text-brandBrown mb-3">Casos recentes</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {banimentos.map(b => (
+            <div class="p-4 bg-white rounded-md border border-black/10 shadow-sm">
+              <div class="flex items-center gap-2 text-brandBrown mb-2">
+                <span class="inline-block h-7 w-7 rounded-full bg-brandYellow grid place-items-center">🚫</span>
+                <strong>{b.usuario}</strong>
+                <span class="ml-auto text-xs px-2 py-1 rounded bg-brandRed text-white">{b.dataBanimento}</span>
+              </div>
+              <p class="text-sm text-brandBrown">Motivo: <strong>{b.motivo}</strong></p>
+              <p class="text-sm text-brandBrown">Duração: <strong>{b.duracao}</strong></p>
+              <p class="text-sm text-brandBrown">Apelou: <strong>{b.apelou}</strong></p>
+              <p class="text-sm text-brandBrown">Resultado da Apelação: <strong>{b.resultadoApelacao}</strong></p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

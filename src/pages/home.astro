@@ -13,7 +13,7 @@ const title = 'BemComido - Principal';
     <header class="w-full bg-brandRed text-white shadow-md">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
         <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</button>
-        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
         <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</button>
         <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
           <span>BC</span>
@@ -36,4 +36,14 @@ const title = 'BemComido - Principal';
       </div>
     </main>
   </body>
+  <script>
+    document.querySelector('[data-favoritos]')?.addEventListener('click', () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        window.location.href = '/favoritos';
+      } else {
+        window.location.href = '/login';
+      }
+    });
+  </script>
 </html>

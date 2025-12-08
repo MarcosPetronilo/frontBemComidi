@@ -57,7 +57,14 @@ function pickTop20Weekly(arr) {
   return shuffled.slice(0, 20);
 }
 
-const top20 = pickTop20Weekly(pool);
+// Ensure every recipe has a modoPreparo string
+function ensurePreparo(r) {
+  if (r.modoPreparo && r.modoPreparo.trim().length > 0) return r;
+  const base = `• Separe os ingredientes principais.\n• Execute o preparo conforme a receita.\n• Ajuste temperos a gosto e sirva.`;
+  return { ...r, modoPreparo: base };
+}
+
+const top20 = pickTop20Weekly(pool).map(ensurePreparo);
 ---
 <html lang="pt-BR">
   <head>
@@ -72,12 +79,23 @@ const top20 = pickTop20Weekly(pool);
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
         <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
         <span class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</span>
-        <a href="/usuario/receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Minhas Receitas</a>
+        <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+          <a href="/usuario/buscar" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Usuário</a>
+          <a href="/" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</a>
         <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
           <span>BC</span>
           <span aria-hidden="true">☕</span>
         </div>
         <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
+        <div class="relative">
+          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
+          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-44 bg-white text-slate-800 rounded-md border border-black/10 shadow-md hidden">
+            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Editar informações</a>
+            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Minhas receitas</a>
+            <a href="/admin/perfil" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Perfil de Administrador</a>
+            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-slate-800">Sair</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -120,6 +138,15 @@ const top20 = pickTop20Weekly(pool);
     </div>
   </body>
   <script>
+    // Favoritos redirect only if authenticated
+    document.querySelector('[data-favoritos]')?.addEventListener('click', () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        window.location.href = '/favoritos';
+      } else {
+        window.location.href = '/login';
+      }
+    });
     const modal = document.getElementById('modal-preparo');
     const conteudo = document.getElementById('conteudo-preparo');
     const fechar = () => { modal?.classList.add('hidden'); modal?.classList.remove('flex'); };
@@ -145,6 +172,18 @@ const top20 = pickTop20Weekly(pool);
         modal?.classList.remove('hidden');
         modal?.classList.add('flex');
       });
+    });
+
+    // Auth three-dots menu
+    const authBtn = document.getElementById('auth-menu-btn');
+    const authMenu = document.getElementById('auth-menu');
+    authBtn?.addEventListener('click', () => authMenu?.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+      if (!authBtn?.contains(e.target) && !authMenu?.contains(e.target)) authMenu?.classList.add('hidden');
+    });
+    document.getElementById('sair-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/';
     });
   </script>
 </html>

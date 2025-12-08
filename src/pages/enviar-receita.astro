@@ -13,20 +13,21 @@ const title = 'BemComido - Enviar Receita';
     <header class="w-full bg-brandRed text-white shadow-md">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
         <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
-        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
-        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</button>
+        <a href="/usuario/receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Minhas Receitas</a>
         <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
           <span>BC</span>
           <span aria-hidden="true">☕</span>
         </div>
         <div class="flex items-center gap-2 ml-2 relative">
-          <span>Bem vindo, Usuário</span>
+            <span>Bem vindo, Usuário</span>
+            <a href="/usuario/buscar" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Usuário</a>
           <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
-          <button id="userMenuToggle" class="ml-2 px-2">⋮</button>
-          <div id="userMenu" class="hidden absolute right-0 top-10 bg-[#f9e3ac] text-brandBrown rounded-md shadow-md ring-1 ring-black/10 w-48">
-            <button id="editarInfo" class="w-full text-left px-4 py-2 hover:bg.black/10">Editar Informações</button>
-            <button id="minhasReceitas" class="w-full text-left px-4 py-2 hover:bg-black/10">Minhas Receitas</button>
-            <button id="sair" class="w-full text-left px-4 py-2 hover:bg-black/10 text-brandRed">Sair</button>
+          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
+          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-44 bg-white text-brandBrown rounded-md border border-black/10 shadow-md hidden">
+            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5">Editar informações</a>
+            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5">Minhas receitas</a>
+            <a href="/admin/perfil" class="block px-3 py-2 hover:bg-black/5">Perfil de Administrador</a>
+            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-brandRed">Sair</button>
           </div>
         </div>
       </div>
@@ -83,19 +84,23 @@ const title = 'BemComido - Enviar Receita';
           </section>
 
           <!-- Modo de Preparo -->
-          <section>
-            <h2 class="text-2xl text-brandBrown mb-2">Modo De Preparo:</h2>
-            <textarea name="modoPreparo" rows="6" placeholder="Descreva o modo de preparo" class="w-full rounded-md border border-black/60 p-2"></textarea>
+          <section class="mb-6">
+            <h2 class="text-2xl text-brandBrown mb-2">Modo de Preparo:</h2>
+            <textarea name="modoPreparo" rows="8" placeholder="Digite o passo a passo (um tópico por linha)" class="w-full rounded-md border border-black/60 p-2"></textarea>
           </section>
 
-          <div class="mt-6 text-right">
-            <p class="text-brandBrown mb-2">Clique nas informações para alterá-las!</p>
-            <button type="submit" class="px-3 py-2 bg-brandRed text-white rounded shadow-button">Enviar Receita</button>
-            <p id="recipeMsg" class="mt-2 text-sm"></p>
-          </div>
-          </form>
-        </div>
-      </div>
+          <script>
+            const authBtn = document.getElementById('auth-menu-btn');
+            const authMenu = document.getElementById('auth-menu');
+            authBtn?.addEventListener('click', () => authMenu?.classList.toggle('hidden'));
+            document.addEventListener('click', (e) => {
+              if (!authBtn?.contains(e.target) && !authMenu?.contains(e.target)) authMenu?.classList.add('hidden');
+            });
+            document.getElementById('sair-btn')?.addEventListener('click', () => {
+              localStorage.removeItem('authToken');
+              window.location.href = '/';
+            });
+          </script>
     </main>
   </body>
 </html>

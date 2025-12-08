@@ -13,8 +13,9 @@ const title = 'BemComido - Feed';
     <header class="w-full bg-brandRed text-white shadow-md">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
         <a href="/top-receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</a>
-        <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
         <button class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</button>
+          <a href="/usuario/buscar" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Usuário</a>
         <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
           <span>BC</span>
           <span aria-hidden="true">☕</span>
@@ -24,7 +25,7 @@ const title = 'BemComido - Feed';
           <span>Bem vindo, Usuário</span>
           <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
           <button id="userMenuToggle" class="ml-2 px-2">⋮</button>
-          <div id="userMenu" class="hidden absolute right-0 top-10 bg-[#f9e3ac] text-brandBrown rounded-md shadow-md ring-1 ring-black/10 w-48">
+          <div id="userMenu" class="hidden absolute right-0 top-full mt-2 z-50 bg-[#f9e3ac] text-brandBrown rounded-md shadow-md ring-1 ring-black/10 w-48">
             <button id="editarInfo" class="w-full text-left px-4 py-2 hover:bg-black/10">Editar Informações</button>
             <button id="minhasReceitas" class="w-full text-left px-4 py-2 hover:bg-black/10">Minhas Receitas</button>
             <button id="sair" class="w-full text-left px-4 py-2 hover:bg-black/10 text-brandRed">Sair</button>
@@ -34,35 +35,113 @@ const title = 'BemComido - Feed';
     </header>
 
     <!-- Conteúdo principal -->
-    <main class="max-w-4xl mx-auto px-4 py-10">
-      <h1 class="text-3xl text-brandBrown italic mb-6">Coloque a mão na massa...</h1>
-
-      <!-- Busca por ingrediente -->
-      <div class="flex items-center gap-3 mb-10">
-        <div class="flex-1 flex items-center gap-2 bg-white rounded-md border border-black/60 p-2 shadow-sm">
-          <span class="text-brandBrown">🔍</span>
-          <input type="text" placeholder="Digite o ingrediente" class="flex-1 outline-none" />
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-3xl text-brandBrown mb-4">Feed</h1>
+      <section class="mb-6 bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10">
+        <div class="flex gap-2">
+          <input id="busca" type="text" placeholder="Buscar por nome ou ingrediente (ex.: arroz)" class="flex-1 input rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed" />
+          <button id="btnBuscar" class="px-3 py-2 bg-brandRed text-white rounded shadow-button">Buscar</button>
         </div>
-        <button class="px-3 py-1 bg-brandRed text-white rounded shadow-button active:translate-y-[1px]">Adicionar</button>
-      </div>
-
-      <!-- Seção: Novas Delícias de seus seguidores -->
-      <section>
-        <h2 class="text-xl text-brandBrown mb-4">Novas Delícias de seus seguidores</h2>
-        <div class="grid grid-cols-1 gap-6">
-          <!-- Card de receita -->
-          <article class="bg-white rounded-xl border border-black/60 shadow-sm p-4">
-            <div class="flex items-center gap-2 text-sm text-brandBrown mb-2">
-              <span class="inline-block h-6 w-6 rounded-full bg-brandYellow grid place-items-center">😊</span>
-              <span>Usuário</span>
-            </div>
-            <h3 class="text-2xl text-brandBrown mb-6">Bolo de Murango HMMM</h3>
-            <div class="text-4xl text-brandBrown">🎂</div>
-          </article>
-        </div>
+        <p id="statusBusca" class="mt-2 text-sm text-brandMuted"></p>
       </section>
+
+      <section id="resultados" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 hidden"></section>
     </main>
   </body>
+  <script>
+    document.querySelector('[data-favoritos]')?.addEventListener('click', () => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        window.location.href = '/favoritos';
+      } else {
+        window.location.href = '/login';
+      }
+    });
+
+    // Mock dataset: generate 300 recipes with varying ingredients
+    const baseNomes = [
+      'Arroz com Frango','Arroz à Grega','Risoto de Cogumelos','Feijoada','Moqueca','Strogonoff','Lasanha','Panqueca','Sopa de Legumes','Macarrão à Carbonara',
+      'Pizza Margherita','Cuscuz','Picanha','Brownie','Bolo de Cenoura','Quiche','Coxinha','Escondidinho','Torta de Limão','Hambúrguer','Arroz de Pato','Esfiha','Kibe','Yakissoba','Paella'
+    ];
+    const ingredientesPool = ['arroz','frango','carne','peixe','camarão','cogumelo','cenoura','batata','tomate','cebola','alho','pimentão','queijo','farinha','feijão','milho','ervilha','manjericão','pancetta','ovo','limão','chocolate'];
+    function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+    function pick(list,n){const c=[...list];const out=[];for(let i=0;i<n;i++){out.push(c.splice(randInt(0,c.length-1),1)[0])}return out}
+    const MOCK = Array.from({length:300},(_,i)=>{
+      const nome = baseNomes[i % baseNomes.length] + ' #' + (i+1);
+      const ingCount = randInt(4,7);
+      const ings = pick(ingredientesPool, ingCount);
+      // Ensure some have 'arroz'
+      if (i % 3 === 0 && !ings.includes('arroz')) ings[randInt(0,ings.length-1)] = 'arroz';
+      return {
+        id: String(i+1),
+        nome,
+        tempo: randInt(15,120),
+        rendimento: randInt(2,8) + ' porções',
+        nivel: ['FACIL','MODERADO','AVANCADO'][i % 3],
+        ingredientes: ings,
+        preparo: '• Misture ingredientes.\n• Cozinhe até o ponto ideal.\n• Ajuste temperos e sirva.'
+      };
+    });
+
+    const input = document.getElementById('busca');
+    const btn = document.getElementById('btnBuscar');
+    const grid = document.getElementById('resultados');
+    const status = document.getElementById('statusBusca');
+
+    function renderResultados(items){
+      grid.innerHTML = items.map(r=>`
+        <div class="bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-brandBrown">${r.nome}</h2>
+            <span class="text-xs px-2 py-1 rounded bg-brandRed text-white">${r.nivel}</span>
+          </div>
+          <div class="mt-2 text-sm text-brandBrown">
+            <p><strong>Tempo:</strong> ${r.tempo} min</p>
+            <p><strong>Rendimento:</strong> ${r.rendimento}</p>
+            <p class="mt-1"><strong>Ingredientes:</strong> ${r.ingredientes.join(', ')}</p>
+          </div>
+          <div class="mt-3">
+            <button class="w-full bg-brandRed text-white px-3 py-2 rounded shadow-button ver-preparo" data-preparo="${r.preparo}">Ver detalhes</button>
+          </div>
+        </div>
+      `).join('');
+      grid.classList.toggle('hidden', items.length === 0);
+      status.textContent = items.length ? `${items.length} receitas encontradas` : 'Nenhuma receita encontrada';
+      attachModalHandlers();
+    }
+
+    function buscar(){
+      const q = (input.value || '').trim().toLowerCase();
+      if (!q){
+        renderResultados([]);
+        return;
+      }
+      const res = MOCK.filter(r => r.nome.toLowerCase().includes(q) || r.ingredientes.some(i => i.toLowerCase().includes(q)));
+      renderResultados(res);
+    }
+    btn?.addEventListener('click', buscar);
+    input?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') buscar(); });
+
+    // Modal for preparo
+    function attachModalHandlers(){
+      document.querySelectorAll('.ver-preparo').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const texto = btn.getAttribute('data-preparo') || 'Modo de preparo não disponível.';
+          conteudo.textContent = texto;
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        });
+      });
+    }
+
+    // Reuse modal pattern
+    const modal = document.getElementById('modal-preparo');
+    const conteudo = document.getElementById('conteudo-preparo');
+    const fechar = () => { modal?.classList.add('hidden'); modal?.classList.remove('flex'); };
+    document.getElementById('fechar-modal')?.addEventListener('click', fechar);
+    document.getElementById('fechar-modal-rodape')?.addEventListener('click', fechar);
+    modal?.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+  </script>
 </html>
 <script>
   const toggle = document.getElementById('userMenuToggle');

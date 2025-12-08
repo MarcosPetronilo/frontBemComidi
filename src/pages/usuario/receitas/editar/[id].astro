@@ -1,0 +1,139 @@
+---
+import type { AstroGlobal } from "astro";
+
+interface Receita {
+  id: string;
+  nome: string;
+  ingredientes: string[];
+  modoPreparo: string;
+  tempoMedioMinutos?: number;
+  rendimento?: string;
+  nivelTecnica?: string;
+  imagemBase64?: string;
+}
+
+export async function get({ params }: AstroGlobal) {
+  const id = params.id as string;
+  let receita: Receita | null = null;
+  const token = '';
+
+  try {
+    const res = await fetch(`http://localhost:8080/recipes/${id}`);
+    if (res.ok) {
+      const data = await res.json();
+      receita = {
+        id: data.id?.toString() ?? id,
+        nome: data.nome ?? 'Receita',
+        ingredientes: Array.isArray(data.ingredientes)
+          ? data.ingredientes
+          : typeof data.ingredientes === 'string'
+          ? data.ingredientes.split(/\r?\n/).filter(Boolean)
+          : [],
+        modoPreparo: data.modoPreparo ?? '',
+        tempoMedioMinutos: data.tempoMedioMinutos ?? undefined,
+        rendimento: data.rendimento ?? undefined,
+        nivelTecnica: data.nivelTecnica ?? undefined,
+      };
+    }
+  } catch {}
+
+  if (!receita) {
+    receita = {
+      id,
+      nome: 'Receita (mock)',
+      ingredientes: ['ingrediente 1', 'ingrediente 2'],
+      modoPreparo: '• Passo 1\n• Passo 2',
+    };
+  }
+
+  return { props: { receita } };
+}
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Editar Receita | Bem Comido</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="bg-[#faf7f2] text-brandText">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <a href="/usuario/receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Minhas Receitas</a>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6">
+      <section class="bg-white rounded-lg shadow-card p-6">
+        <h1 class="text-2xl font-semibold">Editar Receita</h1>
+        <form id="form-editar" class="mt-4 space-y-4">
+          <div>
+            <label class="label">Nome</label>
+            <input id="nome" class="input" value={Astro.props.receita.nome} />
+          </div>
+          <div>
+            <label class="label">Ingredientes (um por linha)</label>
+            <textarea id="ingredientes" class="textarea" rows="6">{Astro.props.receita.ingredientes.join('\n')}</textarea>
+          </div>
+          <div>
+            <label class="label">Modo de Preparo</label>
+            <textarea id="modoPreparo" class="textarea" rows="8">{Astro.props.receita.modoPreparo}</textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="label">Tempo médio (min)</label>
+              <input id="tempo" type="number" class="input" value={Astro.props.receita.tempoMedioMinutos ?? ''} />
+            </div>
+            <div>
+              <label class="label">Rendimento</label>
+              <input id="rendimento" class="input" value={Astro.props.receita.rendimento ?? ''} />
+            </div>
+            <div>
+              <label class="label">Nível</label>
+              <select id="nivel" class="input">
+                <option value="FACIL" selected={Astro.props.receita.nivelTecnica === 'FACIL'}>Fácil</option>
+                <option value="MODERADO" selected={Astro.props.receita.nivelTecnica === 'MODERADO'}>Moderado</option>
+                <option value="AVANCADO" selected={Astro.props.receita.nivelTecnica === 'AVANCADO'}>Avançado</option>
+                <option value="PROFISSIONAL" selected={Astro.props.receita.nivelTecnica === 'PROFISSIONAL'}>Profissional</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button id="salvar" type="button" class="px-4 py-2 bg-brandRed text-white rounded">Salvar</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script>
+      const id = location.pathname.split('/').pop();
+      const token = localStorage.getItem('authToken');
+      const getVal = (id) => document.getElementById(id).value;
+      document.getElementById('salvar').addEventListener('click', async () => {
+        const payload = {
+          nome: getVal('nome'),
+          ingredientes: getVal('ingredientes').split(/\r?\n/).filter(Boolean),
+          modoPreparo: getVal('modoPreparo'),
+          tempoMedioMinutos: Number(getVal('tempo')) || undefined,
+          rendimento: getVal('rendimento') || undefined,
+          nivelTecnica: document.getElementById('nivel').value,
+        };
+        try {
+          const res = await fetch(`http://localhost:8080/recipes/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error('Falha ao salvar');
+          alert('Receita atualizada com sucesso!');
+          location.href = '/usuario/receitas';
+        } catch (e) {
+          alert('Erro ao atualizar: ' + (e?.message || '')); 
+        }
+      });
+    </script>
+  </body>
+</html>

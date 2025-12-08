@@ -1,0 +1,88 @@
+---
+const title = 'BemComido - Relatório de Receitas Excluídas';
+// Mock metrics and excluded recipes list
+const metrics = {
+  totalExcluidas: 1910,
+  excluidasUltimos30Dias: 122,
+  restauradasUltimos30Dias: 18,
+  motivosMaisComuns: [
+    { motivo: 'Conteúdo inadequado', quantidade: 512 },
+    { motivo: 'Spam/Propaganda', quantidade: 431 },
+    { motivo: 'Solicitação do autor', quantidade: 286 },
+    { motivo: 'Direitos autorais', quantidade: 211 },
+    { motivo: 'Duplicada', quantidade: 470 },
+  ],
+};
+const excluidas = Array.from({ length: 20 }, (_, i) => ({
+  id: i + 1,
+  nome: ['Lasanha caseira','Doce de leite','Coxinha cremosa','Macarrão alho e óleo','Bolo de laranja','Pizza calabresa','Feijoada simples','Yakissoba básico','Hambúrguer rápido','Brownie low sugar'][i % 10],
+  autor: `Usuário ${Math.floor(Math.random()*500)+1}`,
+  dataExclusao: new Date(Date.now() - Math.floor(Math.random()*60)*86400000).toLocaleDateString('pt-BR'),
+  motivo: ['Conteúdo inadequado','Spam/Propaganda','Solicitação do autor','Direitos autorais','Duplicada'][Math.floor(Math.random()*5)],
+  acao: ['Banimento','Alerta','Nenhuma'][Math.floor(Math.random()*3)],
+}));
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/admin/perfil" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Voltar</a>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-2xl text-brandBrown mb-4">Relatório de Receitas Excluídas</h1>
+      <section class="bg-[#fff7e6] rounded-md p-6 shadow-md ring-1 ring-black/10">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-brandBrown">
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Total Excluídas</p>
+            <p class="text-2xl font-semibold">{metrics.totalExcluidas}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Excluídas (30 dias)</p>
+            <p class="text-2xl font-semibold">{metrics.excluidasUltimos30Dias}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Restauradas (30 dias)</p>
+            <p class="text-2xl font-semibold">{metrics.restauradasUltimos30Dias}</p>
+          </div>
+        </div>
+        <hr class="my-6 border-black/20" />
+        <h2 class="text-xl text-brandBrown mb-3">Motivos mais comuns</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          {metrics.motivosMaisComuns.map(m => (
+            <div class="p-4 bg-white rounded-md border border-black/10 shadow-sm">
+              <p class="text-sm text-brandBrown">{m.motivo}</p>
+              <p class="text-2xl font-semibold text-brandBrown">{m.quantidade}</p>
+            </div>
+          ))}
+        </div>
+        <h2 class="text-xl text-brandBrown mb-3">Últimas exclusões</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {excluidas.map(r => (
+            <div class="p-4 bg-white rounded-md border border-black/10 shadow-sm">
+              <div class="flex items-center gap-2 text-brandBrown mb-2">
+                <span class="inline-block h-7 w-7 rounded-full bg-brandYellow grid place-items-center">🗑️</span>
+                <strong>{r.nome}</strong>
+                <span class="ml-auto text-xs px-2 py-1 rounded bg-brandRed text-white">{r.dataExclusao}</span>
+              </div>
+              <p class="text-sm text-brandBrown">Autor: <strong>{r.autor}</strong></p>
+              <p class="text-sm text-brandBrown">Motivo: <strong>{r.motivo}</strong></p>
+              <p class="text-sm text-brandBrown">Ação tomada: <strong>{r.acao}</strong></p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+---
+---
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Buscar Usuário</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="min-h-screen bg-[#e24636] text-white">
+    <header class="bg-[#d7372a] sticky top-0 z-40 shadow">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
+        <a href="/top-receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</a>
+        <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
+        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</a>
+        <span class="px-3 py-1 bg-white text-[#b21f1f] rounded shadow-button">Buscar Usuário</span>
+        <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+        <div class="relative">
+          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
+          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-44 bg-white text-slate-800 rounded-md border border-black/10 shadow-md hidden">
+            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Editar informações</a>
+            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Minhas receitas</a>
+            <a href="/admin/perfil" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Perfil de Administrador</a>
+            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-slate-800">Sair</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <h1 class="text-2xl font-semibold mb-4">Buscar Usuário</h1>
+      <div class="bg-white/10 rounded p-4">
+        <div class="flex gap-2 mb-4">
+          <input id="q" class="flex-1 px-3 py-2 rounded bg-white text-slate-900" placeholder="Digite o nome do usuário" />
+          <button id="buscar" class="px-3 py-2 rounded bg-[#b21f1f]">Buscar</button>
+        </div>
+        <ul id="result" class="space-y-2"></ul>
+      </div>
+    </main>
+
+    <style>
+      .shadow-button { box-shadow: 0 2px 0 rgba(0,0,0,0.35); }
+      a, button { text-decoration: none; color: inherit; }
+      input { border: 1px solid rgba(0,0,0,0.2); }
+    </style>
+
+    <script>
+      const usuarios = [
+        { id: 1, nome: 'Marcos Petronilo', email: 'marcos@example.com' },
+        { id: 2, nome: 'Ana Souza', email: 'ana@example.com' },
+        { id: 3, nome: 'João Silva', email: 'joao@example.com' },
+        { id: 4, nome: 'Maria Lima', email: 'maria@example.com' },
+        { id: 5, nome: 'Pedro Santos', email: 'pedro@example.com' },
+      ];
+
+      const q = document.getElementById('q');
+      const btn = document.getElementById('buscar');
+      const ul = document.getElementById('result');
+
+      function render(list) {
+        ul.innerHTML = '';
+        if (!list.length) {
+          const li = document.createElement('li');
+          li.textContent = 'Nenhum usuário encontrado';
+          ul.appendChild(li);
+          return;
+        }
+        for (const u of list) {
+          const li = document.createElement('li');
+          li.className = 'bg-white/20 rounded p-3';
+          li.innerHTML = `<div class="font-semibold">${u.nome}</div><div class="text-sm">${u.email}</div>`;
+          ul.appendChild(li);
+        }
+      }
+
+      function buscar() {
+        const term = q.value.trim().toLowerCase();
+        const r = usuarios.filter(u => u.nome.toLowerCase().includes(term));
+        render(r);
+      }
+
+      btn.addEventListener('click', buscar);
+      q.addEventListener('keydown', (e) => { if (e.key === 'Enter') buscar(); });
+
+      // auth menu
+      const menuBtn = document.getElementById('auth-menu-btn');
+      const menu = document.getElementById('auth-menu');
+      menuBtn?.addEventListener('click', () => menu.classList.toggle('hidden'));
+      document.addEventListener('click', (e) => {
+        if (!menuBtn.contains(e.target) && !menu.contains(e.target)) menu.classList.add('hidden');
+      });
+
+      // favoritos requires auth
+      const favBtn = document.querySelector('[data-favoritos]');
+      favBtn?.addEventListener('click', () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          window.location.href = '/favoritos';
+        } else {
+          window.location.href = '/login';
+        }
+      });
+    </script>
+  </body>
+</html>

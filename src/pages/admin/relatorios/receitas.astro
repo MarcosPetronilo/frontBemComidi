@@ -1,0 +1,84 @@
+---
+const title = 'BemComido - Relatório Geral de Receitas';
+// Mock metrics and recipes list
+const metrics = {
+  totalReceitas: 7502,
+  excluidas: 1910,
+  novasUltimos30Dias: 468,
+  mediaCurtidasPorReceita: 37,
+  mediaComentariosPorReceita: 5,
+};
+const topReceitas = Array.from({ length: 18 }, (_, i) => ({
+  id: i + 1,
+  nome: ['Lasanha à Bolonhesa','Pizza Margherita','Feijoada','Strogonoff de Frango','Bolo de Cenoura','Quiche','Coxinha','Risoto de Cogumelos','Torta de Limão','Hambúrguer Artesanal','Arroz à Grega','Moqueca','Panqueca','Escondidinho','Brownie','Cuscuz','Picanha','Yakissoba'][i % 18],
+  autor: `Usuário ${Math.floor(Math.random()*500)+1}`,
+  curtidas: Math.floor(Math.random() * 2000),
+  comentarios: Math.floor(Math.random() * 400),
+  status: ['ATIVA','EXCLUIDA'][Math.floor(Math.random() * 2)],
+  nivel: ['FACIL','MODERADO','AVANCADO','PROFISSIONAL'][Math.floor(Math.random() * 4)],
+}));
+---
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <a href="/admin/perfil" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Voltar</a>
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
+          <span>BC</span>
+          <span aria-hidden="true">☕</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-2xl text-brandBrown mb-4">Relatório Geral de Receitas</h1>
+      <section class="bg-[#fff7e6] rounded-md p-6 shadow-md ring-1 ring-black/10">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-brandBrown">
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Total de Receitas</p>
+            <p class="text-2xl font-semibold">{metrics.totalReceitas}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Excluídas</p>
+            <p class="text-2xl font-semibold">{metrics.excluidas}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Novas (30 dias)</p>
+            <p class="text-2xl font-semibold">{metrics.novasUltimos30Dias}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Média de Curtidas</p>
+            <p class="text-2xl font-semibold">{metrics.mediaCurtidasPorReceita}</p>
+          </div>
+          <div class="p-3 bg-white rounded border border-black/10">
+            <p class="text-sm">Média de Comentários</p>
+            <p class="text-2xl font-semibold">{metrics.mediaComentariosPorReceita}</p>
+          </div>
+        </div>
+        <hr class="my-6 border-black/20" />
+        <h2 class="text-xl text-brandBrown mb-3">Top Receitas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {topReceitas.map(r => (
+            <div class="p-4 bg-white rounded-md border border-black/10 shadow-sm">
+              <div class="flex items-center gap-2 text-brandBrown mb-2">
+                <span class="inline-block h-7 w-7 rounded-full bg-brandYellow grid place-items-center">🍽️</span>
+                <strong>{r.nome}</strong>
+                <span class="ml-auto text-xs px-2 py-1 rounded bg-brandRed text-white">{r.status}</span>
+              </div>
+              <p class="text-sm text-brandBrown">Autor: <strong>{r.autor}</strong></p>
+              <p class="text-sm text-brandBrown">Curtidas: <strong>{r.curtidas}</strong></p>
+              <p class="text-sm text-brandBrown">Comentários: <strong>{r.comentarios}</strong></p>
+              <p class="text-sm text-brandBrown">Nível: <strong>{r.nivel}</strong></p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

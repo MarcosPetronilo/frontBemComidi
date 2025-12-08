@@ -17,9 +17,15 @@ const title = 'BemComido - Minhas Receitas';
           <span aria-hidden="true">☕</span>
         </div>
         <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
-        <div class="flex items-center gap-2 ml-2">
-          <span>Bem vindo, Usuário</span>
-          <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
+          <a href="/usuario/buscar" class="px-3 py-1 bg-red-700 rounded shadow text-white">Buscar Usuário</a>
+          <div class="relative ml-2">
+          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
+          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-44 bg-white text-slate-800 rounded-md border border-black/10 shadow-md hidden">
+            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Editar informações</a>
+            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Minhas receitas</a>
+            <a href="/admin/perfil" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Perfil de Administrador</a>
+            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-slate-800">Sair</button>
+          </div>
         </div>
       </div>
     </header>
@@ -29,6 +35,58 @@ const title = 'BemComido - Minhas Receitas';
 
       <div id="recipesList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
       <p id="recipesMsg" class="mt-4 text-sm"></p>
+      <!-- Modal de Edição da Receita -->
+      <div id="modal-editar" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white max-w-2xl w-full rounded-2xl shadow-xl ring-1 ring-black/10">
+          <div class="flex items-center justify-between px-5 py-4 border-b">
+            <div class="flex items-center gap-2">
+              <span class="inline-block h-7 w-7 rounded-full bg-brandYellow grid place-items-center">✏️</span>
+              <h3 class="text-xl font-semibold text-brandText">Editar Receita</h3>
+            </div>
+            <button id="fechar-modal-editar" aria-label="Fechar" class="text-brandMuted hover:text-brandText text-2xl leading-none">×</button>
+          </div>
+          <div class="px-5 py-5">
+            <form id="form-editar" class="space-y-5">
+              <input type="hidden" id="edit-id" />
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-brandMuted mb-1">Nome</label>
+                  <input id="edit-nome" class="input rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-brandMuted mb-1">Rendimento</label>
+                  <input id="edit-rendimento" class="input rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed" />
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-brandMuted mb-1">Ingredientes (um por linha)</label>
+                  <textarea id="edit-ingredientes" class="textarea rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed" rows="6"></textarea>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-brandMuted mb-1">Tempo médio (min)</label>
+                    <input id="edit-tempo" type="number" class="input rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-brandMuted mb-1">Nível</label>
+                    <select id="edit-nivel" class="input rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed">
+                      <option value="FACIL">Fácil</option>
+                      <option value="MODERADO">Moderado</option>
+                      <option value="AVANCADO">Avançado</option>
+                      <option value="PROFISSIONAL">Profissional</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-end gap-2 pt-2">
+                <button type="button" class="px-4 py-2 bg-white text-brandText rounded border border-black/20 hover:bg-black/5" id="cancelar-edicao">Cancelar</button>
+                <button id="salvar-edicao" type="button" class="px-4 py-2 bg-brandRed text-white rounded shadow-button hover:brightness-95 active:translate-y-[1px]">Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </main>
   </body>
 </html>
@@ -36,26 +94,31 @@ const title = 'BemComido - Minhas Receitas';
   const listEl = document.getElementById('recipesList');
   const msgEl = document.getElementById('recipesMsg');
 
+  // Dados mocados com IDs para edição inline
   const mocked = [
     {
+      id: 101,
       nome: 'Bolo de Cenoura Clássico',
       tempoMedioMinutos: 45,
       rendimento: '8 porções',
       nivelTecnica: 'FACIL'
     },
     {
+      id: 102,
       nome: 'Lasanha de Frango',
       tempoMedioMinutos: 60,
       rendimento: '6 porções',
       nivelTecnica: 'MODERADO'
     },
     {
+      id: 103,
       nome: 'Risoto de Cogumelos',
       tempoMedioMinutos: 35,
       rendimento: '4 porções',
       nivelTecnica: 'AVANCADO'
     },
     {
+      id: 104,
       nome: 'Torta de Limão',
       tempoMedioMinutos: 50,
       rendimento: '10 porções',
@@ -77,9 +140,9 @@ const title = 'BemComido - Minhas Receitas';
         <p><strong>Rendimento:</strong> ${r.rendimento ?? '-'}</p>
         <p><strong>Nível:</strong> ${r.nivelTecnica ?? '-'}</p>
       </div>
-      <div class="mt-3 flex justify-end">
-        <button data-id="${r.id ?? ''}" class="edit-recipe px-3 py-1 bg-brandRed text-white rounded shadow-button">Editar</button>
-      </div>
+        <div class="mt-3 flex justify-end">
+          <button data-id="${r.id ?? ''}" class="px-3 py-1 bg-brandRed text-white rounded abrir-editar">Editar</button>
+        </div>
     `;
     return el;
   }
@@ -118,18 +181,68 @@ const title = 'BemComido - Minhas Receitas';
     }
   }
 
-  // Delegate edit button clicks
+  // Modal editar: abrir com dados do item selecionado
+  const modalEditar = document.getElementById('modal-editar');
+  const fecharEditar = () => { modalEditar.classList.add('hidden'); modalEditar.classList.remove('flex'); };
+  document.getElementById('fechar-modal-editar')?.addEventListener('click', fecharEditar);
+  modalEditar?.addEventListener('click', (e) => { if (e.target === modalEditar) fecharEditar(); });
+
+  function openEditorById(id) {
+    const item = (mocked.find(m => String(m.id) === String(id)) || null);
+    if (!item) return;
+    document.getElementById('edit-id').value = item.id;
+    document.getElementById('edit-nome').value = item.nome || '';
+    // mock ingredientes
+    const ingredientes = item.ingredientes || ['farinha', 'açúcar', 'ovo'];
+    document.getElementById('edit-ingredientes').value = ingredientes.join('\n');
+    document.getElementById('edit-tempo').value = item.tempoMedioMinutos ?? '';
+    document.getElementById('edit-rendimento').value = item.rendimento ?? '';
+    document.getElementById('edit-nivel').value = item.nivelTecnica ?? 'FACIL';
+    modalEditar.classList.remove('hidden');
+    modalEditar.classList.add('flex');
+  }
+
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.edit-recipe');
+    const btn = e.target.closest('.abrir-editar');
     if (!btn) return;
     const id = btn.getAttribute('data-id');
-    if (id) {
-      window.location.href = `/usuario/receitas/editar/${id}`;
-    } else {
-      // Fallback for mocked items without id
-      window.location.href = '/usuario/editar';
+    openEditorById(id);
+  });
+
+  document.getElementById('salvar-edicao')?.addEventListener('click', () => {
+    const id = Number(document.getElementById('edit-id').value);
+    const idx = mocked.findIndex(m => m.id === id);
+    if (idx >= 0) {
+      mocked[idx] = {
+        ...mocked[idx],
+        nome: document.getElementById('edit-nome').value,
+        ingredientes: document.getElementById('edit-ingredientes').value.split(/\r?\n/).filter(Boolean),
+        tempoMedioMinutos: Number(document.getElementById('edit-tempo').value) || undefined,
+        rendimento: document.getElementById('edit-rendimento').value || undefined,
+        nivelTecnica: document.getElementById('edit-nivel').value || 'FACIL',
+      };
+      // Re-render cards to reflect changes
+      listEl.innerHTML = '';
+      mocked.forEach(r => listEl.appendChild(recipeCard(r)));
+      fecharEditar();
     }
   });
+
+  document.getElementById('cancelar-edicao')?.addEventListener('click', fecharEditar);
+
+  // Auth three-dots menu
+  (function(){
+    const authBtn = document.getElementById('auth-menu-btn');
+    const authMenu = document.getElementById('auth-menu');
+    authBtn?.addEventListener('click', () => authMenu?.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+      if (!authBtn?.contains(e.target) && !authMenu?.contains(e.target)) authMenu?.classList.add('hidden');
+    });
+    document.getElementById('sair-btn')?.addEventListener('click', () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/';
+    });
+  })();
 
   loadRecipes();
 </script>
