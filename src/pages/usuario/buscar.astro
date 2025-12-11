@@ -4,51 +4,48 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Buscar Usuário</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>BemComido - Buscar Usuário</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
-  <body class="min-h-screen bg-[#e24636] text-white">
-    <header class="bg-[#d7372a] sticky top-0 z-40 shadow">
+  <body class="min-h-screen">
+    <header class="w-full bg-brandRed text-white shadow-md">
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-        <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Home</a>
         <a href="/top-receitas" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Top Receitas</a>
         <button data-favoritos class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Favoritos</button>
         <a href="/app" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Buscar Receitas</a>
         <span class="px-3 py-1 bg-white text-[#b21f1f] rounded shadow-button">Buscar Usuário</span>
-        <div class="ml-auto flex items-center gap-2 text-2xl font-logo">
+        <div class="mx-auto flex items-center gap-2 text-2xl font-logo">
           <span>BC</span>
           <span aria-hidden="true">☕</span>
         </div>
-        <div class="relative">
-          <button id="auth-menu-btn" class="h-9 w-9 grid place-items-center rounded-full bg-white/20">⋮</button>
-          <div id="auth-menu" class="absolute right-0 top-full mt-2 z-50 w-44 bg-white text-slate-800 rounded-md border border-black/10 shadow-md hidden">
-            <a href="/usuario/editar" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Editar informações</a>
-            <a href="/usuario/receitas" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Minhas receitas</a>
-            <a href="/admin/perfil" class="block px-3 py-2 hover:bg-black/5 text-slate-800">Perfil de Administrador</a>
-            <button id="sair-btn" class="w-full text-left px-3 py-2 hover:bg-black/5 text-slate-800">Sair</button>
+        <a href="/enviar-receita" class="px-3 py-1 bg-[#b21f1f] rounded shadow-button">Enviar Receita</a>
+        <div class="flex items-center gap-2 ml-2 relative">
+          <span>Bem vindo, Usuário</span>
+          <span class="inline-block h-7 w-7 rounded-full bg-white text-brandRed grid place-items-center">👤</span>
+          <button id="auth-menu-btn" class="ml-2 px-2">⋮</button>
+          <div id="auth-menu" class="hidden absolute right-0 top-full mt-2 z-50 bg-[#f9e3ac] text-brandBrown rounded-md shadow-md ring-1 ring-black/10 w-48">
+            <a href="/usuario/editar" class="block px-4 py-2 hover:bg-black/10">Editar Informações</a>
+            <a href="/usuario/receitas" class="block px-4 py-2 hover:bg-black/10">Minhas Receitas</a>
+            <button id="sair-btn" class="w-full text-left px-4 py-2 hover:bg-black/10 text-brandRed">Sair</button>
           </div>
         </div>
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-6">
-      <h1 class="text-2xl font-semibold mb-4">Buscar Usuário</h1>
-      <div class="bg-white/10 rounded p-4">
-        <div class="flex gap-2 mb-4">
-          <input id="q" class="flex-1 px-3 py-2 rounded bg-white text-slate-900" placeholder="Digite o nome do usuário" />
-          <button id="buscar" class="px-3 py-2 rounded bg-[#b21f1f]">Buscar</button>
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-3xl text-brandBrown mb-4">Buscar Usuário</h1>
+      <section class="mb-6 bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10">
+        <div class="flex gap-2">
+          <input id="q" type="text" placeholder="Digite o nome do usuário" class="flex-1 input rounded-md border-black/40 focus:border-brandRed focus:ring-1 focus:ring-brandRed" />
+          <button id="buscar" class="px-3 py-2 bg-brandRed text-white rounded shadow-button">Buscar</button>
         </div>
-        <ul id="result" class="space-y-2"></ul>
-      </div>
+        <p id="statusBusca" class="mt-2 text-sm text-brandMuted"></p>
+      </section>
+
+      <section id="result" class="space-y-2"></section>
     </main>
 
-    <style>
-      .shadow-button { box-shadow: 0 2px 0 rgba(0,0,0,0.35); }
-      a, button { text-decoration: none; color: inherit; }
-      input { border: 1px solid rgba(0,0,0,0.2); }
-    </style>
+    
 
     <script>
       const usuarios = [
@@ -62,18 +59,15 @@
       const q = document.getElementById('q');
       const btn = document.getElementById('buscar');
       const ul = document.getElementById('result');
+      const status = document.getElementById('statusBusca');
 
       function render(list) {
         ul.innerHTML = '';
-        if (!list.length) {
-          const li = document.createElement('li');
-          li.textContent = 'Nenhum usuário encontrado';
-          ul.appendChild(li);
-          return;
-        }
+        status.textContent = list.length ? `${list.length} usuários encontrados` : 'Nenhum usuário encontrado';
+        if (!list.length) return;
         for (const u of list) {
           const li = document.createElement('li');
-          li.className = 'bg-white/20 rounded p-3';
+          li.className = 'bg-[#fff7e6] rounded-md p-4 shadow-md ring-1 ring-black/10';
           li.innerHTML = `<div class="font-semibold">${u.nome}</div><div class="text-sm">${u.email}</div>`;
           ul.appendChild(li);
         }
@@ -99,7 +93,7 @@
       // favoritos requires auth
       const favBtn = document.querySelector('[data-favoritos]');
       favBtn?.addEventListener('click', () => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         if (token) {
           window.location.href = '/favoritos';
         } else {
